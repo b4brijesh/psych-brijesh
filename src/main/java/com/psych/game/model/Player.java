@@ -1,7 +1,11 @@
 package com.psych.game.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
+import net.minidev.json.annotate.JsonIgnore;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -25,10 +29,12 @@ public class Player extends User {
 
     @OneToOne(cascade = CascadeType.ALL)
     @Getter @Setter
+    @JsonManagedReference
     private Stat stat = new Stat();
 
     @ManyToMany(mappedBy = "players") //not players table but players attribute of Game
     @Getter @Setter
+    @JsonIdentityReference // @JsonBackReference @JsonManagedReference @JsonIgnore
     private Set<Game> games = new HashSet<>();
 
     public Player() {

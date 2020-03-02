@@ -1,6 +1,5 @@
-package com.psych.game;
+package com.psych.game.controller;
 
-import antlr.ASTNULLType;
 import com.psych.game.model.*;
 import com.psych.game.repositories.GameRepository;
 import com.psych.game.repositories.PlayerRepository;
@@ -13,12 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 @RestController
 
 @RequestMapping("/dev-test")
-public class HelloWorldController {
+public class DevTestController {
 
     @Autowired
     private PlayerRepository playerRepository;
@@ -30,7 +28,7 @@ public class HelloWorldController {
     private UserRepository userRepository;
 
     /*@Autowired //dependency injection/inversion in Spring
-    public HelloWorldController(PlayerRepository playerRepository) {
+    public DevTestController(PlayerRepository playerRepository) {
         this.playerRepository = playerRepository;
     }*/
 

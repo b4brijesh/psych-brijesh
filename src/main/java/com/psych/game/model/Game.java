@@ -1,5 +1,7 @@
 package com.psych.game.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +14,8 @@ import java.util.*;
 public class Game extends Auditable {
     @ManyToMany
     @Getter @Setter
-    private Set<Player> players;
+    @JsonIdentityReference
+    private Set<Player> players = new HashSet<>();
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -20,7 +23,8 @@ public class Game extends Auditable {
     private GameMode gameMode;
 
     @OneToMany(mappedBy = "game", cascade =  CascadeType.ALL)
-    private List<Round> rounds = new ArrayList<>();
+    @JsonManagedReference
+    private List<Round> rounds = new ArrayList<Round>();
 
     @Getter @Setter
     private int numRounds = 10;
@@ -31,11 +35,13 @@ public class Game extends Auditable {
     @NotNull
     @Getter @Setter
     @ManyToOne
+    @JsonIdentityReference
     private Player leader;
 
+    @JsonIdentityReference
     @ManyToMany(cascade = CascadeType.ALL)
     @Getter @Setter
-    Map<Player, Stat> playerStats = new HashMap<>();
+    Map<Player, Stat> playerStats = new HashMap<Player, Stat>();
 
     @Enumerated(EnumType.STRING)
     @Getter @Setter
@@ -43,5 +49,50 @@ public class Game extends Auditable {
 
     @Getter @Setter
     @ManyToMany
-    private Set<Player> readyPlayers = new HashSet<>();
+    @JsonIdentityReference
+    private Set<Player> readyPlayers = new HashSet<Player>();
+
+    public Game() {
+    }
+
+    private Game(Builder builder) {
+        setPlayers(builder.players);
+        setGameMode(builder.gameMode);
+        setNumRounds(builder.numRounds);
+        setLeader(builder.leader);
+    }
+
+    public static final class Builder {
+        private Set<Player> players;
+        private @NotNull GameMode gameMode;
+        private int numRounds;
+        private @NotNull Player leader;
+
+        public Builder() {
+        }
+
+        public Builder players(Set<Player> val) {
+            players = val;
+            return this;
+        }
+
+        public Builder gameMode(@NotNull GameMode val) {
+            gameMode = val;
+            return this;
+        }
+
+        public Builder numRounds(int val) {
+            numRounds = val;
+            return this;
+        }
+
+        public Builder leader(@NotNull Player val) {
+            leader = val;
+            return this;
+        }
+
+        public Game build() {
+            return new Game(this);
+        }
+    }
 }
