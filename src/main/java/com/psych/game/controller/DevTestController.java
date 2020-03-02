@@ -1,10 +1,11 @@
 package com.psych.game;
 
-import com.psych.game.model.GameMode;
-import com.psych.game.model.Player;
-import com.psych.game.model.Question;
+import antlr.ASTNULLType;
+import com.psych.game.model.*;
+import com.psych.game.repositories.GameRepository;
 import com.psych.game.repositories.PlayerRepository;
 import com.psych.game.repositories.QuestionRepository;
+import com.psych.game.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,10 @@ public class HelloWorldController {
     private PlayerRepository playerRepository;
     @Autowired
     private QuestionRepository questionRepository;
+    @Autowired
+    private GameRepository gameRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     /*@Autowired //dependency injection/inversion in Spring
     public HelloWorldController(PlayerRepository playerRepository) {
@@ -54,13 +59,34 @@ public class HelloWorldController {
         return playerRepository.findById(id).orElseThrow(null);
     }
 
-    //Games
-    //Admins
+    @GetMapping("/games")
+    public List<Game> getAllGames() {
+        return gameRepository.findAll();
+    }
+
+    @GetMapping("/game/{id}")
+    public Game getGameById(@PathVariable(name = "id") Long id) {
+        return gameRepository.findById(id).orElseThrow(null);
+    }
+
+    @GetMapping("/users")
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @GetMapping("/user/{id}")
+    public User getUserById(@PathVariable(name = "id") Long id) {
+        return userRepository.findById(id).orElseThrow(null);
+    }
     //Rounds
     //Content-Writers
 
     @GetMapping("/populate")
     public String populateDB() {
+        gameRepository.deleteAll();
+        playerRepository.deleteAll();
+        questionRepository.deleteAll();
+
         Player luffy = new Player.Builder()
                 .alias("Monkey D. Luffy")
                 .email("luffy@gmail.com")
@@ -78,6 +104,13 @@ public class HelloWorldController {
                 "Rio Poneglyph",
                 GameMode.IS_THIS_A_FACT
         ));
+
+        Game game = new Game();
+        game.setGameMode(GameMode.IS_THIS_A_FACT);
+        game.setLeader(luffy);
+        game.getPlayers().add(luffy);
+        gameRepository.save(game);
+
         return "populated";
     }
 }
