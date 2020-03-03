@@ -46,6 +46,11 @@ public class Player extends User {
         setAlias(builder.alias);
     }
 
+    public Game getCurrentGame() {
+        return new Game();
+        // todo
+    }
+
     public static final class Builder {
         private @Email @NotBlank String email;
         private @NotBlank String saltedHashedPassword;
