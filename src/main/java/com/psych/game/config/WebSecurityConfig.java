@@ -20,10 +20,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/dev-test/").permitAll()
-                .antMatchers("/dev-test/*").authenticated()
-/*                .antMatchers("/dev-test/user*").permitAll()
-                .antMatchers("/dev-test/game*").permitAll()*/
+                .antMatchers("/dev-test/*").permitAll()
                 .anyRequest().authenticated()
                 .and().formLogin().permitAll()
                 .and().logout().permitAll();

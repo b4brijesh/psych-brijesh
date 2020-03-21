@@ -6,6 +6,8 @@ import com.psych.game.Utils;
 import com.psych.game.exceptions.InvalidGameActionException;
 import lombok.Getter;
 import lombok.Setter;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -19,13 +21,16 @@ public class Game extends Auditable {
     @JsonIdentityReference
     private Set<Player> players = new HashSet<>();
 
+    @ManyToOne
+    @JsonIdentityReference
     @NotNull
-    @Enumerated(EnumType.STRING)
+    //@Enumerated(EnumType.STRING)
     @Getter @Setter
     private GameMode gameMode;
 
     @OneToMany(mappedBy = "game", cascade =  CascadeType.ALL)
     @JsonManagedReference
+    @OrderBy(value = "round_number asc")
     private List<Round> rounds = new ArrayList<Round>();
 
     @Getter @Setter
@@ -47,7 +52,7 @@ public class Game extends Auditable {
 
     @Enumerated(EnumType.STRING)
     @Getter @Setter
-    private GameStatus gameStatus;
+    private GameStatus gameStatus = GameStatus.PLAYERS_JOINING;
 
     @Getter @Setter
     @ManyToMany
@@ -57,24 +62,29 @@ public class Game extends Auditable {
     public Game() {
     }
 
-    public Game(@NotNull GameMode gameMode, int numRounds, boolean hasEllen, @NotNull Player leader) {
+    public Game(@NotNull GameMode gameMode, int numRounds, boolean hasEllen, @NotNull Player leader)
+            throws InvalidGameActionException {
         this.gameMode = gameMode;
         this.numRounds = numRounds;
         this.hasEllen = hasEllen;
         this.leader = leader;
-        this.players.add(leader);
+        addPlayer(leader);
     }
 
     public void addPlayer(Player player) throws InvalidGameActionException {
         if(gameStatus != GameStatus.PLAYERS_JOINING)
             throw new InvalidGameActionException("Can't join after the game has started");
         players.add(player);
+        player.setCurrentGame(this);
     }
 
     public void removePlayer(Player player) throws InvalidGameActionException {
         if (!players.contains(player))
             throw new InvalidGameActionException("No such player in the game");
         players.remove(player);
+        if (player.getCurrentGame().equals(this)) {
+            player.setCurrentGame(null);
+        }
         if(players.size() == 0 || (players.size() == 1 && !gameStatus.equals(GameStatus.PLAYERS_JOINING))) {
             endGame();
         }
@@ -151,11 +161,26 @@ public class Game extends Auditable {
 
     private void endGame() {
         gameStatus = GameStatus.ENDED;
+        for (Player player: players) {
+            if (player.getCurrentGame().equals(this)) {
+                player.setCurrentGame(null);
+            }
+        }
     }
 
-    public String getGameState() {
-        // todo
-        return "Some string which has all the data that the front-end needs";
+    public JSONObject getGameState() {
+        JSONObject state = new JSONObject();
+        state.put("id", getId());
+        state.put("numRounds", getNumRounds());
+        state.put("mode", getGameMode().getName());
+        JSONArray playerData = new JSONArray();
+        for (Player player: players) {
+            JSONObject data = new JSONObject();
+            data.put("alias", player.getAlias());
+            playerData.add(data);
+        }
+        state.put("players", playerData);
+        return state;
     }
 
 }

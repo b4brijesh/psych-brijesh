@@ -37,6 +37,12 @@ public class Player extends User {
     @JsonIdentityReference // @JsonBackReference @JsonManagedReference @JsonIgnore
     private Set<Game> games = new HashSet<>();
 
+    @ManyToOne
+    @JsonIdentityReference
+    @Getter
+    @Setter
+    private Game currentGame = null;
+
     public Player() {
     } //violates Builder-Pattern but used to provide Spring access to Entity
 
@@ -44,11 +50,6 @@ public class Player extends User {
         setEmail(builder.email);
         setSaltedHashedPassword(builder.saltedHashedPassword);
         setAlias(builder.alias);
-    }
-
-    public Game getCurrentGame() {
-        return new Game();
-        // todo
     }
 
     public static final class Builder {

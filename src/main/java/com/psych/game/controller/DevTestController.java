@@ -1,10 +1,7 @@
 package com.psych.game.controller;
 
 import com.psych.game.model.*;
-import com.psych.game.repositories.GameRepository;
-import com.psych.game.repositories.PlayerRepository;
-import com.psych.game.repositories.QuestionRepository;
-import com.psych.game.repositories.UserRepository;
+import com.psych.game.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +23,8 @@ public class DevTestController {
     private GameRepository gameRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private GameModeRepository gameModeRepository;
 
     /*@Autowired //dependency injection/inversion in Spring
     public DevTestController(PlayerRepository playerRepository) {
@@ -84,27 +83,39 @@ public class DevTestController {
         gameRepository.deleteAll();
         playerRepository.deleteAll();
         questionRepository.deleteAll();
+        gameModeRepository.deleteAll();
 
         Player luffy = new Player.Builder()
                 .alias("Monkey D. Luffy")
-                .email("luffy@gmail.com")
+                .email("luffy@psych.com")
                 .saltedHashedPassword("strawhat")
                 .build();
         playerRepository.save(luffy);
         Player robin = new Player.Builder()
                 .alias("Nico Robin")
-                .email("robin@gmail.com")
+                .email("robin@psych.com")
                 .saltedHashedPassword("poneglyph")
                 .build();
         playerRepository.save(robin);
 
+        GameMode isThisAFact = new GameMode("Is This A Fact?", "https://irs.www.warnerbros.com/mobile-app-games-square-jpeg/psych_mobile_keyart.jpg", "is this a fact description");
+        gameModeRepository.save(isThisAFact);
+        gameModeRepository.save(new GameMode("Word Up", "https://irs.www.warnerbros.com/mobile-app-games-square-jpeg/psych_mobile_keyart.jpg", "word up description"));
+        gameModeRepository.save(new GameMode("Un-Scramble", "https://irs.www.warnerbros.com/mobile-app-games-square-jpeg/psych_mobile_keyart.jpg", "un-scramble description"));
+        gameModeRepository.save(new GameMode("Movie Buff", "https://irs.www.warnerbros.com/mobile-app-games-square-jpeg/psych_mobile_keyart.jpg", "movie buff description"));
+
         questionRepository.save(new Question("What is the most important Poneglyph?",
                 "Rio Poneglyph",
-                GameMode.IS_THIS_A_FACT
+                isThisAFact
+        ));
+
+        questionRepository.save(new Question("How far can you stretch?",
+                "56",
+                isThisAFact
         ));
 
         Game game = new Game();
-        game.setGameMode(GameMode.IS_THIS_A_FACT);
+        game.setGameMode(isThisAFact);
         game.setLeader(luffy);
         game.getPlayers().add(luffy);
         gameRepository.save(game);
